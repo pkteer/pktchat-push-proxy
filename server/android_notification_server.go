@@ -76,10 +76,23 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 	if me.metrics != nil {
 		me.metrics.incrementNotificationTotal(PushNotifyAndroid, pushType)
 	}
-	fcmMsg := &fcm.Message{
-		To:       msg.DeviceID,
-		Data:     data,
-		Priority: "high",
+	var fcmMsg *fcm.Message
+	if data["message"] == nil {
+		fcmMsg = &fcm.Message{
+			To:       msg.DeviceID,
+			Data:     data,
+			Priority: "high",
+		}
+	} else {
+		fcmMsg = &fcm.Message{
+			To:       msg.DeviceID,
+			Data:     data,
+			Priority: "high",
+			Notification: &fcm.Notification{
+				Title: "PKT Chat Message",
+				Body:  data["message"].(string),
+			},
+		}
 	}
 
 	if me.AndroidPushSettings.AndroidAPIKey != "" {
